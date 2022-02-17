@@ -58,12 +58,12 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: app-zip-file
-          path: build/distibutions/data-masker-*.zip
+          path: build/distributions/data-masker-*.zip
 
       - name: Get app version
         id: get-app-version
         run: |
-            cd build/distibutions
+            cd build/distributions
             version="$(ls | awk -F".zip" '{print $1}' | awk -F"-" '{print $NF}')"
             echo "::set-output name=app-version::$version"
             echo "::set-output name=commit-short-sha::$(git rev-parse --short HEAD)"
