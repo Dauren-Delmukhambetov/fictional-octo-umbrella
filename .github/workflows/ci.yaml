@@ -47,7 +47,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew build sonarqube buildZip --info
+        run: ./gradlew build sonarqube --info
+
+      - name: Build zip
+        id: build-zip
+        run: ./gradlew buildZip --info
 
       - name: Store app artifact
         # if: ${{ github.ref == 'refs/heads/master' }}
