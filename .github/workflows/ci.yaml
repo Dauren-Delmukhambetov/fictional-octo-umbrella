@@ -54,7 +54,7 @@ jobs:
         run: ./gradlew buildZip --info
 
       - name: Store app artifact
-        if: ${{ github.ref == 'refs/heads/master' }}
+        # if: ${{ github.ref == 'refs/heads/master' }}
         uses: actions/upload-artifact@v2
         with:
           name: app-zip-file
@@ -72,7 +72,7 @@ jobs:
   deploy:
     name: Deploy to AWS Lambda
     runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/master' }}
+    # if: ${{ github.ref == 'refs/heads/master' }}
     needs: build
 
     steps:
@@ -107,3 +107,24 @@ jobs:
           COMMIT_HASH: ${{ needs.build.outputs.commit-short-sha }}
         run: |
           aws s3 cp data-masker-*.zip s3://$AWS_S3_BUCKET/data-masker-$APP_VERSION-$COMMIT_HASH.zip
+
+      - name: Update Lambda function code
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          APP_VERSION: ${{ needs.build.outputs.app-version }}
+          COMMIT_HASH: ${{ needs.build.outputs.commit-short-sha }}
+        run: |
+          aws lambda update-function-code \
+              --function-name my-java-function \
+              --s3-bucket $AWS_S3_BUCKET \
+              --s3-key data-masker-$APP_VERSION-$COMMIT_HASH.zip
+
+      - name: Wait until function updated
+        run: |
+          aws lambda wait function-updated \
+              --function-name my-java-function
+
+      - name: Get Lambda function info
+        run: |
+          aws lambda get-function \
+              --function-name my-java-function
