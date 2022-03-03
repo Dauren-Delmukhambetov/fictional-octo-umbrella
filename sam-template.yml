@@ -1,0 +1,32 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Resources:
+  DataMaskerApi:
+    Type: 'AWS::Serverless::Api'
+    Properties:
+      StageName: dev
+      Models:
+        DataMaskingRequest:
+          type: object
+          required:
+            - data
+          properties:
+            data:
+              type: string
+  DataMaskerLambdaFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Runtime: java11
+      Handler: org.serverless.umbrella.Handler::handleRequest
+      CodeUri: build/distributions/data-masker-0.1.0.zip
+      Events:
+        DataMaskerApiEvent:
+          Type: Api
+          Properties:
+            Path: /data-masker
+            Method: post
+            RequestModel:
+              Model: DataMaskingRequest
+              Required: true
+            RestApiId:
+              Ref: DataMaskerApi

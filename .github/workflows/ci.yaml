@@ -49,17 +49,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew build sonarqube --info
 
-      - name: Build zip
-        id: build-zip
-        run: ./gradlew buildZip --info
-
-      - name: Store app artifact
-        if: ${{ github.ref == 'refs/heads/master' }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: app-zip-file
-          path: build/distributions/data-masker-*.zip
-
       - name: Get app version
         id: get-app-version
         run: |
@@ -95,36 +84,24 @@ jobs:
       - name: Display AWS CLI confgiuration
         run: aws configure list
 
-      - name: Download app artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: app-zip-file
+      - name: Build zip
+        id: build-zip
+        run: ./gradlew buildZip --info
 
-      - name: Upload app artifact to S3 bucket
+      - name: Package serverless app
         env:
           AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
           APP_VERSION: ${{ needs.build.outputs.app-version }}
-          COMMIT_HASH: ${{ needs.build.outputs.commit-short-sha }}
         run: |
-          aws s3 cp data-masker-*.zip s3://$AWS_S3_BUCKET/data-masker-$APP_VERSION-$COMMIT_HASH.zip
-
-      - name: Update Lambda function code
-        env:
-          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-          APP_VERSION: ${{ needs.build.outputs.app-version }}
-          COMMIT_HASH: ${{ needs.build.outputs.commit-short-sha }}
-        run: |
-          aws lambda update-function-code \
-              --function-name my-java-function \
+          aws cloudformation package \
+              --template-file sam-template.yml \
               --s3-bucket $AWS_S3_BUCKET \
-              --s3-key data-masker-$APP_VERSION-$COMMIT_HASH.zip
+              --s3-prefix $APP_VERSION \
+              --output-template-file out.yml
 
-      - name: Wait until function updated
+      - name: Deploy serverless app
         run: |
-          aws lambda wait function-updated \
-              --function-name my-java-function
-
-      - name: Get Lambda function info
-        run: |
-          aws lambda get-function \
-              --function-name my-java-function
+          aws cloudformation deploy \
+              --template-file out.yml \
+              --stack-name data-masker-api \
+              --capabilities CAPABILITY_IAM
