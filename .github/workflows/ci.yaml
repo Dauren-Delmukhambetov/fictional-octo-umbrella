@@ -15,10 +15,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    outputs:
-      app-version: ${{ steps.get-app-version.outputs.app-version }}
-      commit-short-sha: ${{ steps.get-app-version.outputs.commit-short-sha }}
-
     steps:
       - uses: actions/checkout@v2
         with:
@@ -49,19 +45,10 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew build sonarqube --info
 
-      - name: Get app version
-        id: get-app-version
-        run: |
-            cd build/distributions
-            version="$(ls | awk -F".zip" '{print $1}' | awk -F"-" '{print $NF}')"
-            echo "::set-output name=app-version::$version"
-            echo "::set-output name=commit-short-sha::$(git rev-parse --short HEAD)"
-
-
   deploy:
     name: Deploy to AWS Lambda
     runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/master' }}
+    # if: ${{ github.ref == 'refs/heads/master' }}
     needs: build
 
     steps:
@@ -88,10 +75,16 @@ jobs:
         id: build-zip
         run: ./gradlew buildZip --info
 
+      - name: Get app version
+        id: get-app-version
+        run: |
+          cd build/distributions
+          version="$(ls | awk -F".zip" '{print $1}' | awk -F"-" '{print $NF}')"
+          echo "::set-env name=APP_VERSION::$version"
+
       - name: Package serverless app
         env:
           AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-          APP_VERSION: ${{ needs.build.outputs.app-version }}
         run: |
           aws cloudformation package \
               --template-file sam-template.yml \
