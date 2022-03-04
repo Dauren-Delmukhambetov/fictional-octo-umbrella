@@ -15,9 +15,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    outputs:
-      app-version: ${{ steps.get-app-version.outputs.app-version }}
-
     steps:
       - uses: actions/checkout@v2
         with:
@@ -48,24 +45,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew build sonarqube --info
 
-      - name: Build zip
-        id: build-zip
-        run: ./gradlew buildZip --info
-
-      - name: Store app artifact
-        # if: ${{ github.ref == 'refs/heads/master' }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: app-zip-file
-          path: build/distributions/data-masker-*.zip
-
-      - name: Get app version
-        id: get-app-version
-        run: |
-          cd build/distributions
-          version="$(ls | awk -F".zip" '{print $1}' | awk -F"-" '{print $NF}')"
-          echo "::set-output name=app-version::$version"
-
   deploy:
     name: Deploy serverless app to AWS
     runs-on: ubuntu-latest
@@ -73,6 +52,7 @@ jobs:
     needs: build
 
     steps:
+      # Configuring AWS CLI
       - name: Display AWS CLI version
         run: aws --version
       - name: Add config file
@@ -92,16 +72,25 @@ jobs:
       - name: Display AWS CLI confgiuration
         run: aws configure list
 
-      - name: Download app artifact
-        uses: actions/download-artifact@v2
+      # Packaging the app
+      - name: Check out the current branch
+        uses: actions/checkout@v2
         with:
-          name: app-zip-file
-          path: build/distributions
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Build zip
+        id: build-zip
+        run: ./gradlew buildZip --info
+      - name: Get app version
+        id: get-app-version
+        run: |
+          cd build/distributions
+          version="$(ls | awk -F".zip" '{print $1}' | awk -F"-" '{print $NF}')"
+          echo "::set-env name=APP_VERSION::$version"
 
+      # Deploying the app to AWS
       - name: Package serverless app
         env:
           AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-          APP_VERSION: ${{ needs.build.outputs.app-version }}
         run: |
           aws cloudformation package \
               --template-file sam-template.yml \
