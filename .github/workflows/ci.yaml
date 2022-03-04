@@ -85,12 +85,13 @@ jobs:
         run: |
           cd build/distributions
           version="$(ls | awk -F".zip" '{print $1}' | awk -F"-" '{print $NF}')"
-          echo "::set-env name=APP_VERSION::$version"
+          echo "app-version=$version" >> $GITHUB_ENV
 
       # Deploying the app to AWS
       - name: Package serverless app
         env:
           AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          APP-VERSION: ${{ env.app-version }}
         run: |
           aws cloudformation package \
               --template-file sam-template.yml \
