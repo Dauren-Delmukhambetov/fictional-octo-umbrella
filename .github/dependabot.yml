@@ -1,8 +1,13 @@
 version: 2
 updates:
 
-  # Maintain dependencies for GitHub Actions
   - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    reviewers:
+      - "Dauren-Delmukhambetov"
+  - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
