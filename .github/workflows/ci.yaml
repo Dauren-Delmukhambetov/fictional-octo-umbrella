@@ -91,7 +91,7 @@ jobs:
       - name: Package serverless app
         env:
           AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-          APP-VERSION: ${{ env.app-version }}
+          APP_VERSION: ${{ env.app-version }}
         run: |
           aws cloudformation package \
               --template-file sam-template.yml \
