@@ -18,12 +18,12 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
 
-        log(context, "Starting processing request {} with input: {}", input.getRequestContext().getRequestId(), input.getBody());
+        log(context, "Starting processing request %s with input: %s", input.getRequestContext().getRequestId(), input.getBody());
 
         final var request = gson.fromJson(input.getBody(), DataMaskingRequest.class);
         final var response = doMaskData(request);
 
-        log(context, "Completing processing request {} with output: {}", input.getRequestContext().getRequestId(), response);
+        log(context, "Completing processing request %s with output: %s", input.getRequestContext().getRequestId(), response);
 
         return new APIGatewayProxyResponseEvent()
                 .withStatusCode(200)
