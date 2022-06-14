@@ -1,42 +1,20 @@
 package org.serverless.umbrella;
 
-import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import static java.util.Collections.singletonMap;
+public class Handler
+        extends BaseHandler<Handler.DataMaskingRequest, Handler.DataMaskingResponse>
+        implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
-public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
-
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    public Handler() { super(DataMaskingRequest.class); }
 
     @Override
-    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
-
-        log(context, "Starting processing request %s with input: %s", input.getRequestContext().getRequestId(), input.getBody());
-
-        final var request = gson.fromJson(input.getBody(), DataMaskingRequest.class);
-        final var response = doMaskData(request);
-
-        log(context, "Completing processing request %s with output: %s", input.getRequestContext().getRequestId(), response);
-
-        return new APIGatewayProxyResponseEvent()
-                .withStatusCode(200)
-                .withHeaders(singletonMap("Content-Type", "application/json"))
-                .withBody(gson.toJson(response));
-    }
-
-    protected DataMaskingResponse doMaskData(final DataMaskingRequest request) {
-        return new DataMaskingResponse(EmailMasker.mask(request.data));
-    }
-
-    protected void log(Context context, String message, Object... args) {
-        context.getLogger().log(String.format(message, args));
+    protected DataMaskingResponse doHandleRequest(DataMaskingRequest input) {
+        return new DataMaskingResponse(EmailMasker.mask(input.data));
     }
 
     @Getter
