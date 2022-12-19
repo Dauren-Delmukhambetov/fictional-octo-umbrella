@@ -18,6 +18,8 @@ Resources:
     Properties:
       Runtime: java11
       Handler: org.serverless.umbrella.Handler::handleRequest
+      MemorySize: 1024
+      Timeout: 300
       CodeUri: build/distributions/data-masker-0.1.0.zip
       Events:
         DataMaskerApiEvent:
