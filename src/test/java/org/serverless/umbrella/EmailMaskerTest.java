@@ -19,6 +19,6 @@ class EmailMaskerTest {
     @DisplayName("should return the same string when no email")
     void shouldReturnTheSameString() {
         final var input = "Hello, Adele!";
-        assertEquals(input + " [from production]", EmailMasker.mask(input));
+        assertEquals(input + " [from dev]", EmailMasker.mask(input));
     }
 }
