@@ -1,10 +1,14 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
+Parameters:
+  Stage:
+    Type: String
+    Default: dev
 Resources:
   DataMaskerApi:
     Type: 'AWS::Serverless::Api'
     Properties:
-      StageName: dev
+      StageName: !Ref Stage
       Models:
         DataMaskingRequest:
           type: object
@@ -16,6 +20,7 @@ Resources:
   DataMaskerLambdaFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
+      AutoPublishAlias: !Ref Stage
       Runtime: java11
       Handler: org.serverless.umbrella.Handler::handleRequest
       MemorySize: 1024
