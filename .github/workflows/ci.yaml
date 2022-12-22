@@ -49,7 +49,6 @@ jobs:
     name: Deploy serverless app to AWS
     runs-on: ubuntu-latest
     environment: development
-    if: ${{ github.ref == 'refs/heads/master' }}
     needs: build
 
     steps:
