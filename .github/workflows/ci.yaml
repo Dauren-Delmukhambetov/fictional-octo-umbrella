@@ -48,6 +48,7 @@ jobs:
   deploy:
     name: Deploy serverless app to AWS
     runs-on: ubuntu-latest
+    environment: development
     if: ${{ github.ref == 'refs/heads/master' }}
     needs: build
 
@@ -89,8 +90,11 @@ jobs:
               --output-template-file out.yml
 
       - name: Deploy serverless app
+        env:
+          STACK_SUFFIX: ${{ secrets.ENV_SUFFIX != '' && '' || format('-{0}', secrets.ENV_SUFFIX) }}
         run: |
           aws cloudformation deploy \
               --template-file out.yml \
-              --stack-name data-masker-api \
+              --stack-name data-masker-api$STACK_SUFFIX \
+              --parameter-overrides Stage=development \
               --capabilities CAPABILITY_IAM
