@@ -48,7 +48,9 @@ jobs:
   deploy:
     name: Deploy serverless app to AWS
     runs-on: ubuntu-latest
-    environment: development
+    environment:
+      name: development
+      url: ${{ steps.save-env-url.outputs.api_url }}
     needs: build
 
     steps:
@@ -98,9 +100,13 @@ jobs:
               --parameter-overrides Stage=development \
               --capabilities CAPABILITY_IAM
 
-      - name: Describe serverless app stack outputs
+      - name: Save environment URL
+        id: save-env-url
         env:
           STACK_SUFFIX: ${{ secrets.ENV_SUFFIX != '' && '' || format('-{0}', secrets.ENV_SUFFIX) }}
         run: |
-          aws cloudformation describe-stacks \
+          apiUrl="$(aws cloudformation describe-stacks \
               --stack-name data-masker-api$STACK_SUFFIX \
+              --query "Stacks[].Outputs[?OutputKey=='ApiUrl'].OutputValue"  \
+              --output text)"
+          echo "::set-output api_url=$apiUrl"
