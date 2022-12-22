@@ -4,6 +4,10 @@ Parameters:
   Stage:
     Type: String
     Default: dev
+    AllowedValues:
+      - dev
+      - prod
+    Description: Set up the environment name [prod, dev]. Default id dev.
 Resources:
   DataMaskerApi:
     Type: 'AWS::Serverless::Api'
@@ -26,6 +30,8 @@ Resources:
       MemorySize: 1024
       Timeout: 300
       CodeUri: build/distributions/data-masker-0.1.0.zip
+      SnapStart:
+        ApplyOn: PublishedVersions
       Events:
         DataMaskerApiEvent:
           Type: Api
