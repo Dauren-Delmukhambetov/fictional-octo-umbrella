@@ -97,3 +97,10 @@ jobs:
               --stack-name data-masker-api$STACK_SUFFIX \
               --parameter-overrides Stage=development \
               --capabilities CAPABILITY_IAM
+
+      - name: Describe serverless app stack outputs
+        env:
+          STACK_SUFFIX: ${{ secrets.ENV_SUFFIX != '' && '' || format('-{0}', secrets.ENV_SUFFIX) }}
+        run: |
+          aws cloudformation describe-stacks \
+              --stack-name data-masker-api$STACK_SUFFIX \
