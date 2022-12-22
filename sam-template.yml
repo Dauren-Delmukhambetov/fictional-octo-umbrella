@@ -2,8 +2,13 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 Parameters:
   Stage:
+    Description: Environment to deploy app. Default id dev.
     Type: String
-    Default: dev
+    Default: development
+    AllowedValues:
+      - 'development'
+      - 'production'
+
 Resources:
   DataMaskerApi:
     Type: 'AWS::Serverless::Api'
@@ -26,6 +31,8 @@ Resources:
       MemorySize: 1024
       Timeout: 300
       CodeUri: build/distributions/data-masker-0.1.0.zip
+      SnapStart:
+        ApplyOn: PublishedVersions
       Events:
         DataMaskerApiEvent:
           Type: Api

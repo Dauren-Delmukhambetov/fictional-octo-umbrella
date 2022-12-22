@@ -93,5 +93,4 @@ jobs:
           aws cloudformation deploy \
               --template-file out.yml \
               --stack-name data-masker-api \
-              --parameter-overrides Stage=dev \
               --capabilities CAPABILITY_IAM
