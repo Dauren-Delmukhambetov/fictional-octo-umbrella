@@ -105,4 +105,4 @@ jobs:
               --stack-name data-masker-api$STACK_SUFFIX \
               --query "Stacks[].Outputs[?OutputKey=='ApiUrl'].OutputValue"  \
               --output text)"
-          echo "api_ur=$apiUrl" >> $GITHUB_OUTPUT
+          echo "api_url=$apiUrl" >> $GITHUB_OUTPUT
