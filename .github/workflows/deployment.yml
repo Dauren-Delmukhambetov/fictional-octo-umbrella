@@ -11,14 +11,6 @@ on:
         required: true
         type: string
 
-    secrets:
-      aws-access-key:
-        required: true
-      aws-secret-key:
-        required: true
-      aws-s3-bucket:
-        required: true
-
 jobs:
   deploy:
     name: Deploy serverless app to AWS
