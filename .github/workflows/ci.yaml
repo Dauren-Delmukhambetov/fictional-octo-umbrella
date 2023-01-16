@@ -56,6 +56,5 @@ jobs:
       aws-access-key: ${{ secrets.AWS_ACCESS_KEY }}
       aws-secret-key: ${{ secrets.AWS_SECRET_KEY }}
       aws-s3-bucket: ${{ secrets.AWS_S3_BUCKET }}
-    environment:
-      name: development
+    environment: development
     needs: build
