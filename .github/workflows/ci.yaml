@@ -50,8 +50,4 @@ jobs:
     uses: ./.github/workflows/deployment.yml
     with:
       aws-region: us-east-1
-    secrets:
-      aws-access-key: ${{ secrets.AWS_ACCESS_KEY }}
-      aws-secret-key: ${{ secrets.AWS_SECRET_KEY }}
-      aws-s3-bucket: ${{ secrets.AWS_S3_BUCKET }}
     needs: build
