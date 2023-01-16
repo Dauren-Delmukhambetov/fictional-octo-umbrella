@@ -11,6 +11,14 @@ on:
         required: true
         type: string
 
+    secrets:
+      aws-access-key:
+        required: true
+      aws-secret-key:
+        required: true
+      aws-s3-bucket:
+        required: true
+
 jobs:
   deploy:
     name: Deploy serverless app to AWS
@@ -26,8 +34,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-access-key-id: ${{ secrets.aws-access-key }}
+          aws-secret-access-key: ${{ secrets.aws-secret-key }}
           aws-region: ${{ inputs.aws-region }}
 
       # Packaging the app
@@ -50,7 +58,7 @@ jobs:
         run: |
           aws cloudformation package \
               --template-file sam-template.yml \
-              --s3-bucket ${{ secrets.AWS_S3_BUCKET }} \
+              --s3-bucket ${{ secrets.aws-s3-bucket }} \
               --s3-prefix $APP_VERSION \
               --output-template-file out.yml
 
