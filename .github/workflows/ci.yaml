@@ -49,12 +49,9 @@ jobs:
     name: Deploy serverless app to AWS
     uses: ./.github/workflows/deployment.yml
     with:
-      stack-suffix: ${{ vars.STACK_SUFFIX }}
-      stage-name: ${{ vars.STAGE_NAME }}
       aws-region: us-east-1
     secrets:
       aws-access-key: ${{ secrets.AWS_ACCESS_KEY }}
       aws-secret-key: ${{ secrets.AWS_SECRET_KEY }}
       aws-s3-bucket: ${{ secrets.AWS_S3_BUCKET }}
-    environment: development
     needs: build

@@ -7,29 +7,17 @@ on:
   workflow_call:
 
     inputs:
-      stack-suffix:
-        required: true
-        type: string
-      stage-name:
-        required: true
-        type: string
       aws-region:
         required: true
         type: string
-
-    secrets:
-      aws-access-key:
-        required: true
-      aws-secret-key:
-        required: true
-      aws-s3-bucket:
-        required: true
-
 
 jobs:
   deploy:
     name: Deploy serverless app to AWS
     runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.save-api-url.outputs.api_url }}
 
     steps:
       # Configuring AWS CLI
@@ -38,8 +26,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.aws-access-key }}
-          aws-secret-access-key: ${{ secrets.aws-secret-key }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: ${{ inputs.aws-region }}
 
       # Packaging the app
@@ -62,7 +50,7 @@ jobs:
         run: |
           aws cloudformation package \
               --template-file sam-template.yml \
-              --s3-bucket ${{ secrets.aws-s3-bucket }} \
+              --s3-bucket ${{ secrets.AWS_S3_BUCKET }} \
               --s3-prefix $APP_VERSION \
               --output-template-file out.yml
 
@@ -70,8 +58,8 @@ jobs:
         run: |
           aws cloudformation deploy \
               --template-file out.yml \
-              --stack-name data-masker-api${{ inputs.stack-suffix }} \
-              --parameter-overrides Stage=${{ inputs.stage-name }} \
+              --stack-name data-masker-api${{ vars.STACK_SUFFIX }} \
+              --parameter-overrides Stage=${{ vars.STAGE_NAME }} \
               --capabilities CAPABILITY_IAM
 
       - name: Save environment URL
