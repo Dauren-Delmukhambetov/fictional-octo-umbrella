@@ -44,3 +44,8 @@ Resources:
               Required: true
             RestApiId:
               Ref: DataMaskerApi
+
+Outputs:
+  ApiUrl:
+    Description: Deployed API URL address
+    Value: !Sub "https://${DataMaskerApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/"
