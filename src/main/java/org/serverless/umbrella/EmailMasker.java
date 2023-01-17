@@ -13,7 +13,7 @@ public class EmailMasker {
     private static final Faker faker = new Faker();
 
     public static String mask(final String data) {
-        return data.replaceAll(EMAIL_PATTERN.pattern(), fakeEmail()) + " [from dev]";
+        return data.replaceAll(EMAIL_PATTERN.pattern(), fakeEmail());
     }
 
     private static String fakeEmail() {
