@@ -7,16 +7,19 @@ on:
   workflow_call:
 
     inputs:
+      environment-name:
+        required: true
+        type: string
       aws-region:
         required: true
         type: string
 
 jobs:
   deploy:
-    name: Deploy serverless app to AWS
+    name: Deploy app to AWS
     runs-on: ubuntu-latest
     environment:
-      name: development
+      name: ${{ inputs.environment-name }}
       url: ${{ steps.save-api-url.outputs.api_url }}
 
     steps:
@@ -66,7 +69,7 @@ jobs:
         id: save-api-url
         run: |
           apiUrl="$(aws cloudformation describe-stacks \
-              --stack-name data-masker-api${{ inputs.stack-suffix }} \
+              --stack-name data-masker-api${{ vars.STACK_SUFFIX }} \
               --query "Stacks[].Outputs[?OutputKey=='ApiUrl'].OutputValue"  \
               --output text)"
           echo "api_url=$apiUrl" >> $GITHUB_OUTPUT
